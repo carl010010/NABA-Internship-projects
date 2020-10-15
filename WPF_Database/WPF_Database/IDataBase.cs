@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace WPF_Database
@@ -8,8 +10,18 @@ namespace WPF_Database
     {
         bool Write(PersonInfo person);
 
-        PersonInfo ReadMostRecent();
+        PersonInfo FindMostRecentPerson();
 
-        bool PrintAll();
+        List<string> FindAllFullNames();
+
+        public bool DataBaseFound(string databaseName)
+        {
+            if (File.Exists(databaseName))
+                return true;
+
+            Trace.WriteLine("Database could not be found");
+
+            return false;
+        }
     }
 }

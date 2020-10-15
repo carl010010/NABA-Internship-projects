@@ -3,6 +3,7 @@ using System.Data.SqlServerCe;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 namespace WPF_Database
 {
@@ -26,7 +27,7 @@ namespace WPF_Database
 
         public bool Write(PersonInfo person)
         {
-            if (!DataBaseFound(DATABASE_NAME))
+            if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
                 return false;
 
 
@@ -42,7 +43,7 @@ namespace WPF_Database
 
                     if (result < 0)
                     {
-                        Console.WriteLine("Error inserting data into database");
+                        Trace.WriteLine("Error inserting data into database");
                         return false;
                     }
                 }
@@ -51,9 +52,9 @@ namespace WPF_Database
             return true;
         }
 
-        public PersonInfo ReadMostRecent()
+        public PersonInfo FindMostRecentPerson()
         {
-            if (!DataBaseFound(DATABASE_NAME))
+            if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
                 return null;
 
             string firstName = null, lastName = null;
@@ -77,12 +78,14 @@ namespace WPF_Database
             return new PersonInfo(firstName, lastName);
         }
 
-        public bool PrintAll()
+        public List<string> FindAllFullNames()
         {
-            Console.WriteLine("Printing all names from database");
+            Trace.WriteLine("Printing all names from database");
 
-            if (!DataBaseFound(DATABASE_NAME))
-                return false;
+            if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
+                return null;
+
+            List<string> fullNames = new List<string>();
 
             string firstName = null, lastName = null;
 
@@ -97,23 +100,13 @@ namespace WPF_Database
                         {
                             firstName = rdr[0].ToString();
                             lastName = rdr[1].ToString();
-                            Console.WriteLine(firstName + " " + lastName);
+                            fullNames.Add(firstName + " " + lastName);
                         }
                     }
                 }
             }
 
-            return true;
-        }
-
-        bool DataBaseFound(string databaseName)
-        {
-            if (File.Exists(databaseName))
-                return true;
-
-            Console.WriteLine("Database could not be found");
-
-            return false;
+            return fullNames;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using ClosedXML.Excel;
 using System.IO;
+using System.Diagnostics;
 
 namespace WPF_Database
 {
@@ -22,9 +23,9 @@ namespace WPF_Database
             IXLWorksheet workSheet;
             IXLRow row;
 
-            if (File.Exists("Names.xlsx"))
+            if (File.Exists(DATABASE_NAME))
             {
-                workBook = new XLWorkbook("Names.xlsx");
+                workBook = new XLWorkbook(DATABASE_NAME);
                 workSheet = workBook.Worksheet("Name");
                 row = workSheet.LastRowUsed().RowBelow();
             }
@@ -39,16 +40,19 @@ namespace WPF_Database
             row.Cell(1).SetValue(person.GetFirstName());
             row.Cell(2).SetValue(person.GetLastName());
 
-            workBook.SaveAs("Names.xlsx");
+            workBook.SaveAs(DATABASE_NAME);
 
             return true;
         }
 
-        public PersonInfo ReadMostRecent()
+        public PersonInfo FindMostRecentPerson()
         {
             string firstName, lastName;
 
-            var workBook = new XLWorkbook("Names.xlsx");
+            if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
+                return null;
+
+            var workBook = new XLWorkbook(DATABASE_NAME);
             var workSheet = workBook.Worksheet("Name");
 
             var row = workSheet.LastRowUsed();
@@ -59,29 +63,32 @@ namespace WPF_Database
             return new PersonInfo(firstName, lastName);
         }
 
-        public bool PrintAll()
+        public List<string> FindAllFullNames()
         {
-            Console.WriteLine("Printing all names from excel sheet");
+            Trace.WriteLine("Printing all names from excel sheet");
 
             XLWorkbook workBook;
             IXLWorksheet workSheet;
 
-            if (!File.Exists("Names.xlsx"))
-                return false;
+            if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
+                return null;
 
-            workBook = new XLWorkbook("Names.xlsx");
+            workBook = new XLWorkbook(DATABASE_NAME);
             workSheet = workBook.Worksheet("Name");
 
             var row = workSheet.FirstRow();
+
+            List<string> fullNames = new List<string>();
 
             while (!row.Cell(1).IsEmpty())
             {
                 string firstName = row.Cell(1).Value.ToString(), lastName = row.Cell(2).Value.ToString();
 
-                Console.WriteLine(firstName + " " + lastName);
+                //Trace.WriteLine(firstName + " " + lastName);
+                fullNames.Add(firstName + " " + lastName);
                 row = row.RowBelow();
             }
-            return true;
+            return fullNames;
         }
     }
 }
