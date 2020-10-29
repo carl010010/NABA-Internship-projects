@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Drawing;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,13 +19,13 @@ namespace WPF_Database
 
         public bool Write(PersonInfo person)
         {
-            throw new NotImplementedException();
-
-            using (var file = new StreamWriter(DATABASE_NAME))
+            using (var file = new StreamWriter(DATABASE_NAME, true))
             {
                 file.WriteLine(person.GetFirstName());
                 file.WriteLine(person.GetLastName());
             }
+
+            return true;
         }
 
         public PersonInfo FindMostRecentPerson()
@@ -32,14 +33,22 @@ namespace WPF_Database
             if (!((IDataBase)this).DataBaseFound(DATABASE_NAME))
                 return null;
             
-            throw new NotImplementedException();
 
-            string firstName, lastName;
+            string fTemp, lTemp, firstName = null, lastName = null;
             using (var file = new StreamReader(DATABASE_NAME))
             {
-                firstName = file.ReadLine();
-                lastName = file.ReadLine();
+                while ((fTemp = file.ReadLine()) != null)
+                {
+                    if ((lTemp = file.ReadLine()) != null)
+                    {
+                        firstName = fTemp;
+                        lastName = lTemp;
+                    }
+                }
             }
+
+            if (firstName == null || lastName == null)
+                return null;
 
             return new PersonInfo(firstName, lastName);
         }
@@ -65,24 +74,6 @@ namespace WPF_Database
             }
 
             return fullNames;
-        }
-
-        public static IEnumerable<string> ReadLastLines(string path, int count)
-        {
-            if (count < 1)
-                return Enumerable.Empty<string>();
-
-            var queue = new Queue<string>(count);
-
-            foreach (var line in File.ReadLines(path))
-            {
-                if (queue.Count == count)
-                    queue.Dequeue();
-
-                queue.Enqueue(line);
-            }
-
-            return queue;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace WPF_Database
         //List of SQL commands
         const string WRITE_CMD = "INSERT INTO Person (FirstName, LastName) VALUES (@FirstName,@LastName)";
         const string READALL_CMD = "SELECT FirstName, LastName from Person";
-        const string READ_NEWEST_CMD = "SELECT TOP 1 FirstName, LastName from Person ORDER BY PersonID DESC";
+        const string READ_NEWEST_CMD = "SELECT TOP 1 FirstName, LastName from Person ORDER BY Id DESC";
 
 
 
